@@ -44,32 +44,11 @@ int main(void)
 	addrSrv.sin_family = AF_INET;
 	addrSrv.sin_port = htons(6001);
 
-	//custom code
-
-	protocol::Packet p("NULL", "YYYY/MM/DD HH:MM:SS:MMM");
-	p.ContentLength = 10000;
-	string header = p.createHeader();
-	int headerLength = header.size();
-	char * temp = new char[20000];
-	sprintf(temp, header.c_str(), headerLength);
-	char * ptr = temp + headerLength;
-
-	for (int i = 0; i < 2000; ++i) {
-		sprintf(ptr, "%04d#", i);
-		ptr += 5;
-	}
-
-	int packetLength = headerLength + 10000;
-	temp[packetLength] = '\0';
-	cout << temp << endl;
-
-	//other data
-
 	int count = 0;
 	int sendSuccess = 0;
 	time_t start,end;
 	start = time(NULL);
-
+	char temp[] = "hello world!";
 	puts("program start");
 	system("pause");
 	puts("sending");
@@ -77,32 +56,25 @@ int main(void)
 		SOCKET sockClient = socket(AF_INET, SOCK_STREAM, 0);		
 		connect(sockClient, (SOCKADDR*)&addrSrv, sizeof(SOCKADDR));
 
-		if (send(sockClient, temp, packetLength, 0) == packetLength) {
+		if ((count = send(sockClient, temp, strlen(temp), 0)) == strlen(temp)) {
 			printf("send success:num = %d\n", count);
 			sendSuccess++;
 		}
 		else {
 			printf("send failed:num = %d\n", count);
 		}
-		
-		/*if(send(sockClient , header.c_str() , header.size() , 0 ) == header.size()){
-			printf("send success:num = %d\n",count);
-			sendSuccess ++;
-		}else{
-			printf("send failed:num = %d\n",count);
-		}*/
 
-		/*if (send(sockClient, "", 0, 0) == 0) {
-			printf("send success:num = %d\n", count);
-			sendSuccess++;
+		char temp[256] = { 0 };
+		int num = recv(sockClient, temp, 256, 0);
+		printf("recv:%d content:\n", num);
+		for (int i = 0; i < num; ++i) {
+			putchar(temp[i]);
 		}
-		else {
-			printf("send failed:num = %d\n", count);
-		}*/
+		putchar('\n');
 
 		closesocket(sockClient);
 		system("pause");
-		Sleep(1);
+		//Sleep(1);
 		count ++;
 	}
 
